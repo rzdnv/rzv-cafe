@@ -14,7 +14,7 @@ const Login = () => {
       password: form.password.value,
     };
     const result = await login(payload);
-    console.log("HASIL LOGIN:", result);
+    // console.log("HASIL LOGIN:", result);
     setLocalStorage("auth", result.token);
     window.location.href = "/orders";
   };

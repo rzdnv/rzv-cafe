@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import styles from "./CreateOrder.module.css";
-import { createOrder, getMenu } from "../../../services/order.service";
+import { getMenu } from "../../../services/menu.service";
+import { createOrder } from "../../../services/order.service";
 import { Link, useSearchParams } from "react-router-dom";
 import Button from "../../ui/Buttton";
 import Input from "../../ui/Input";
