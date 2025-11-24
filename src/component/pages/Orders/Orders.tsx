@@ -1,4 +1,3 @@
-import styles from "./Orders.module.css";
 import {
   deleteOrder,
   getOrders,
@@ -19,6 +18,7 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  Chip,
 } from "@heroui/react";
 
 // -----------------------
@@ -31,9 +31,24 @@ interface OrderType {
   status: "PROCESSING" | "COMPLETED";
 }
 
+type ChipColor = "success" | "warning" | "danger" | "default";
+
 const Orders = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  function getChipColor(status: string): ChipColor {
+    switch (status) {
+      case "COMPLETED":
+        return "success";
+      case "PROCESSING":
+        return "warning";
+      case "CANCELLED":
+        return "danger";
+      default:
+        return "default";
+    }
+  }
 
   // ----------------------------------------------------------------
   // FETCH ORDERS (REPLACE useEffect)
@@ -94,12 +109,10 @@ const Orders = () => {
   }
 
   return (
-    <main className={styles.order}>
-      <section className={styles.header}>
-        <h1 className={`${styles.title} text-2xl text-slate-800 font-bold`}>
-          Order List
-        </h1>
-        <div className={styles.button}>
+    <main className="container p-5">
+      <section className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl text-slate-800 font-bold">Order List</h1>
+        <div className="flex flex-row gap-2.5">
           <Link to="/create">
             <Button color="primary">Create Order</Button>
           </Link>
@@ -110,76 +123,38 @@ const Orders = () => {
       </section>
 
       <section>
-        {/* <table
-          border={1}
-          className={styles.table}
-          cellSpacing={0}
-          cellPadding={10}
-        >
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Customer Name</th>
-              <th>Table</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {orders.map((order: OrderType, index: number) => (
-              <tr key={order.id}>
-                <td>{index + 1}</td>
-                <td>{order.customer_name}</td>
-                <td>{order.table_number}</td>
-                <td>${order.total}</td>
-                <td>{order.status}</td>
-                <td className={styles.action}>
-                  <Link to={`/orders/${order.id}`}>
-                    <Button>Detail</Button>
-                  </Link>
-
-                  {order.status === "PROCESSING" && (
-                    <Button
-                      onClick={() => handleCompleteOrder(order.id)}
-                      color="success"
-                    >
-                      Completed
-                    </Button>
-                  )}
-
-                  {order.status === "COMPLETED" && (
-                    <Button
-                      onClick={() => handleDeleteOrder(order.id)}
-                      color="danger"
-                    >
-                      Delete
-                    </Button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table> */}
-        <Table aria-label="Order Table" className="min-w-full">
+        <Table aria-label="Order Table" className="min-w-full ">
           <TableHeader>
-            <TableColumn>No</TableColumn>
-            <TableColumn>Customer Name</TableColumn>
-            <TableColumn>Table</TableColumn>
-            <TableColumn>Total</TableColumn>
-            <TableColumn>Status</TableColumn>
-            <TableColumn>Actionn</TableColumn>
+            <TableColumn className="text-center">No</TableColumn>
+            <TableColumn className="text-center">Customer Name</TableColumn>
+            <TableColumn className="text-center">Table</TableColumn>
+            <TableColumn className="text-center">Total</TableColumn>
+            <TableColumn className="text-center">Status</TableColumn>
+            <TableColumn className="text-center">Actionn</TableColumn>
           </TableHeader>
           <TableBody>
             {orders.map((order: OrderType, index: number) => (
               <TableRow key={order.id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{order.customer_name}</TableCell>
-                <TableCell>{order.table_number}</TableCell>
-                <TableCell>{`$ ${order.total}`}</TableCell>
-                <TableCell>{order.status}</TableCell>
+                <TableCell className="text-center">{index + 1}</TableCell>
+                <TableCell className="text-center">
+                  {order.customer_name}
+                </TableCell>
+                <TableCell className="text-center">
+                  {order.table_number}
+                </TableCell>
+                <TableCell className="text-center">{`$ ${order.total}`}</TableCell>
                 <TableCell>
+                  <div className="flex justify-center">
+                    <Chip
+                      color={getChipColor(order.status)}
+                      size="md"
+                      variant="flat"
+                    >
+                      {order.status}
+                    </Chip>
+                  </div>
+                </TableCell>
+                <TableCell className="flex justify-center gap-2.5">
                   <Link to={`/orders/${order.id}`}>
                     <Button>Detail</Button>
                   </Link>
@@ -188,6 +163,7 @@ const Orders = () => {
                     <Button
                       onClick={() => handleCompleteOrder(order.id)}
                       color="success"
+                      className="text-white"
                     >
                       Completed
                     </Button>
