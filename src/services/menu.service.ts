@@ -1,5 +1,12 @@
 import { api } from "../api/axios";
 
+export const getMenu = async (category?: string) => {
+  const response = await api.get("/menu", {
+    params: { category },
+  });
+  return response.data;
+};
+
 // export const getMenu = async (category?: string) => {
 //   let url = `${environment.API_URL}/menu?page=1&pageSize=25`;
 //   if (category) {
@@ -11,10 +18,3 @@ import { api } from "../api/axios";
 
 //   return result;
 // };
-
-export const getMenu = async (category?: string) => {
-  const response = await api.get("/menu", {
-    params: { category },
-  });
-  return response.data;
-};

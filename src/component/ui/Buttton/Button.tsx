@@ -20,7 +20,6 @@ const Button = ({
       type={type}
       className={`${styles.button} ${styles[`button-${color}`]} ${className}`}
       onClick={onClick}
-      //   {...props}
     >
       {children}
     </button>

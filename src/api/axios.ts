@@ -9,6 +9,14 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("auth");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  // console.log("TOKEN DI LOCALSTORAGE:", token);
+
+  if (token) {
+    config.headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  // console.log("HEADER YANG TERKIRIM:", config.headers);
+
   return config;
 });

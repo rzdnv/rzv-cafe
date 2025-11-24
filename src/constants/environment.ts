@@ -1,5 +1,7 @@
-import { getENV } from "../utils/environment";
+// TIDAK DIPAKAI DIGANTI PAKAI AXIOS
 
-export const environment = {
-  API_URL: getENV("API_URL"),
-};
+// import { getENV } from "../utils/environment";
+
+// export const environment = {
+//   API_URL: getENV("API_URL"),
+// };
