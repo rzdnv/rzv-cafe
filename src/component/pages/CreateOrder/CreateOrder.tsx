@@ -1,23 +1,35 @@
 import { useState, type FormEvent } from "react";
 import styles from "./CreateOrder.module.css";
-import { getMenu } from "../../../services/menu.service";
+import { getMenu, getMenuDetail } from "../../../services/menu.service";
 import { createOrder } from "../../../services/order.service";
 import { Link } from "react-router-dom";
-import { Button } from "@heroui/react";
 import Input from "../../ui/Input";
 import Select from "../../ui/Select";
 import type { CartItem, MenuItem } from "../../../types/order";
 import { filters, tables } from "./CreateOrder.constants";
 
 // ----------------
-import { addToast } from "@heroui/react";
-import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@heroui/react";
+import { addToast } from "@heroui/react";
 import { Spinner } from "@heroui/react";
+import { Card, CardBody, CardFooter, Image } from "@heroui/react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+} from "@heroui/react";
+// ----------------
 
 const CreateOrder = () => {
   const navigate = useNavigate();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedMenuId, setSelectedMenuId] = useState<string>();
 
   const mutation = useMutation({
     mutationFn: createOrder,
@@ -40,9 +52,9 @@ const CreateOrder = () => {
     },
   });
 
-  // Mengambil data menu
   const [carts, setCarts] = useState<CartItem[]>([]);
 
+  // Mengambil data menu
   const [category, setCategory] = useState("All");
 
   const { data, isLoading } = useQuery({
@@ -52,9 +64,38 @@ const CreateOrder = () => {
       return result.data;
     },
   });
-
   const Menus = data ?? [];
+  // --------------------
 
+  // Menu Detail
+  // const { data: Mdetail = {}, isLoading: isDetailLoading } = useQuery({
+  //   queryKey: ["menuItem", selectedMenuId],
+  //   queryFn: async () => {
+  //     if (!selectedMenuId) return null;
+  //     const result = await getMenuDetail(selectedMenuId);
+  //     return result.data;
+  //   },
+  //   enabled: !!selectedMenuId, // query jalan hanya kalau ada ID
+  // });
+
+  const { data: Mdetail, isLoading: isDetailLoading } = useQuery({
+    queryKey: ["menuDetail", selectedMenuId],
+    queryFn: async () => {
+      const result = await getMenuDetail(selectedMenuId);
+      return result.menu;
+    },
+    enabled: !!selectedMenuId,
+  });
+
+  // const { data: Mdetail = {} } = useQuery({
+  //   queryKey: ["category", category],
+  //   queryFn: async () => {
+  //     const result = await getMenuDetail();
+  //     return result.data;
+  //   },
+  // });
+
+  // Add to cart
   const handleAddToCart = (type: string, id: string, name: string) => {
     const itemIsInCart = carts.find((item: CartItem) => item.id === id);
     if (type === "increment") {
@@ -79,7 +120,9 @@ const CreateOrder = () => {
       }
     }
   };
+  // ------------------
 
+  // Send Order
   const handleOrder = (e: FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -96,20 +139,31 @@ const CreateOrder = () => {
 
     mutation.mutate(payload);
   };
+  // -----------
 
   // Loading state
-  if (isLoading) {
-    return (
-      <div className="flex min-w-screen min-h-screen justify-center items-center text-2xl font-bold">
-        <Spinner
-          classNames={{ label: "text-foreground mt-4" }}
-          label="Loading"
-          variant="wave"
-          size="lg"
-        />
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex min-w-screen min-h-screen justify-center items-center text-2xl font-bold">
+  //       <Spinner
+  //         classNames={{ label: "text-foreground mt-4" }}
+  //         label="Loading"
+  //         variant="wave"
+  //         size="lg"
+  //       />
+  //     </div>
+  //   );
+  // }
+  // ------------
+
+  const handleOpenDetail = () => {
+    onOpen();
+  };
+
+  const handleClose = () => {
+    setSelectedMenuId(undefined);
+    onClose();
+  };
 
   return (
     <div className={styles.create}>
@@ -134,28 +188,105 @@ const CreateOrder = () => {
 
         {/* Menu Start */}
         <div className={styles.list}>
-          {Menus.map((item: MenuItem) => (
-            <div className={styles.item} key={item.id}>
-              <img
-                src={item.image_url}
-                alt={item.name}
-                className={styles.image}
+          {/* Card */}
+          {isLoading ? (
+            <div className="flex mt-20 ml-40 text-2xl font-bold">
+              <Spinner
+                classNames={{ label: "text-foreground mt-4" }}
+                label="Loading"
+                variant="wave"
+                size="lg"
               />
-              <h2>{item.name}</h2>
-              <div className={styles.bottom}>
-                <p className={styles.price}>${item.price}</p>
-                <Button
-                  type="submit"
-                  onClick={() =>
-                    handleAddToCart("increment", item.id, item.name)
-                  }
-                >
-                  Order
-                </Button>
-              </div>
             </div>
-          ))}
+          ) : (
+            Menus.map((item: MenuItem, index: number) => (
+              <Card key={index} shadow="sm">
+                <CardBody
+                  className="overflow-visible p-0 "
+                  onClick={() => {
+                    setSelectedMenuId(item.id);
+                    handleOpenDetail();
+                  }}
+                >
+                  <Image
+                    alt={item.name}
+                    src={item.image_url}
+                    className="w-full object-cover aspect-4/3"
+                    radius="lg"
+                    shadow="sm"
+                  />
+                </CardBody>
+                <CardFooter className="text-small justify-between">
+                  <div className="flex flex-col gap-1">
+                    <h1 className="text-medium font-semibold text-slate-900">
+                      {item.name}
+                    </h1>
+                    <h1 className="text-medium font-medium text-slate-900">
+                      Price : ${item.price}
+                    </h1>
+                  </div>
+                  <Button
+                    color="primary"
+                    onPress={() => {
+                      handleAddToCart("increment", item.id, item.name);
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))
+          )}
         </div>
+        {/* detail menu start */}
+        <Modal isOpen={isOpen} onClose={handleClose}>
+          <ModalContent>
+            <>
+              <ModalHeader>
+                {isDetailLoading ? "Loading..." : Mdetail?.name}
+              </ModalHeader>
+              <ModalBody>
+                {isDetailLoading ? (
+                  <Spinner />
+                ) : (
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <Image
+                        className="aspect-square object-cover w-full rounded-lg"
+                        src={Mdetail?.image_url}
+                        alt={Mdetail?.name}
+                      />
+                    </div>
+
+                    <div className="flex-1 flex flex-col gap-2">
+                      <p>Description : {Mdetail?.description}</p>
+                      <p className="font-semibold text-lg">
+                        Price: ${Mdetail?.price}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={handleClose}>
+                  Close
+                </Button>
+                <Button
+                  color="primary"
+                  isDisabled={!Mdetail}
+                  onPress={() => {
+                    handleAddToCart("increment", Mdetail.id, Mdetail.name);
+                    handleClose();
+                  }}
+                >
+                  Add to Cart
+                </Button>
+              </ModalFooter>
+            </>
+          </ModalContent>
+        </Modal>
+
+        {/* detail menu end */}
         {/* Menu End */}
       </div>
       {/* Menus section End */}
@@ -248,3 +379,42 @@ export default CreateOrder;
 //   await createOrder(payload);
 //   window.location.href = "/orders";
 // };
+
+// {
+//   isLoading ? (
+//     <div className="flex min-w-screen min-h-screen justify-center items-center text-2xl font-bold">
+//       <Spinner
+//         classNames={{ label: "text-foreground mt-4" }}
+//         label="Loading"
+//         variant="wave"
+//         size="lg"
+//       />
+//     </div>
+//   ) : (
+//     <Card
+//       key={index}
+//       isPressable
+//       shadow="sm"
+//       onPress={() => {
+//         setSelectedMenuId(item.id);
+//         console.log(item.id);
+//         handleOpenDetail();
+//       }}
+//     >
+//       <CardBody className="overflow-visible p-0">
+//         <Image
+//           alt={item.name}
+//           className="w-full object-cover h-[140px]"
+//           radius="lg"
+//           shadow="sm"
+//           src={item.image_url}
+//           width="100%"
+//         />
+//       </CardBody>
+//       <CardFooter className="text-small justify-between ">
+//         <b>{item.name}</b>
+//         <p className="text-default-500"> $ {item.price}</p>
+//       </CardFooter>
+//     </Card>
+//   );
+// }

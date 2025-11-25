@@ -7,6 +7,14 @@ export const getMenu = async (category?: string) => {
   return response.data;
 };
 
+export const getMenuDetail = async (id?: string) => {
+  const response = await api.get(`/menu/${id}`);
+  return {
+    menu: response.data.menuItem ?? {},
+    reviews: response.data.reviews ?? {},
+  };
+};
+
 // export const getMenu = async (category?: string) => {
 //   let url = `${environment.API_URL}/menu?page=1&pageSize=25`;
 //   if (category) {
