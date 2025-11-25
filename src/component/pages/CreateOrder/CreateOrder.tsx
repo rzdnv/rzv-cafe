@@ -1,26 +1,59 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import styles from "./CreateOrder.module.css";
 import { getMenu } from "../../../services/menu.service";
 import { createOrder } from "../../../services/order.service";
-import { Link, useSearchParams } from "react-router-dom";
-import Button from "../../ui/Buttton";
+import { Link } from "react-router-dom";
+import { Button } from "@heroui/react";
 import Input from "../../ui/Input";
 import Select from "../../ui/Select";
 import type { CartItem, MenuItem } from "../../../types/order";
 import { filters, tables } from "./CreateOrder.constants";
 
+// ----------------
+import { addToast } from "@heroui/react";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Spinner } from "@heroui/react";
+
 const CreateOrder = () => {
-  const [menu, setMenu] = useState([]);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const mutation = useMutation({
+    mutationFn: createOrder,
+    onSuccess: () => {
+      addToast({
+        title: "Success",
+        description: "Order created successfully!",
+        color: "success",
+        variant: "solid",
+      });
+      navigate("/orders");
+    },
+    onError: () => {
+      addToast({
+        title: "Error",
+        description: "Failed to create order",
+        color: "danger",
+        variant: "solid",
+      });
+    },
+  });
+
+  // Mengambil data menu
   const [carts, setCarts] = useState<CartItem[]>([]);
 
-  useEffect(() => {
-    const fetchMenu = async () => {
-      const result = await getMenu(searchParams.get("category") as string);
-      setMenu(result.data);
-    };
-    fetchMenu();
-  }, [searchParams]);
+  const [category, setCategory] = useState("All");
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["category", category],
+    queryFn: async () => {
+      const result = await getMenu(category === "All" ? undefined : category);
+      return result.data;
+    },
+  });
+
+  const Menus = data ?? [];
 
   const handleAddToCart = (type: string, id: string, name: string) => {
     const itemIsInCart = carts.find((item: CartItem) => item.id === id);
@@ -47,47 +80,61 @@ const CreateOrder = () => {
     }
   };
 
-  const handleOrder = async (e: FormEvent) => {
+  const handleOrder = (e: FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
+
     const payload = {
       customerName: form.customerName.value,
       tableNumber: form.tableNumber.value,
-      cart: carts.map((item: CartItem) => ({
+      cart: carts.map((item) => ({
         menuItemId: item.id,
         quantity: item.quantity,
         notes: "",
       })),
     };
-    await createOrder(payload);
-    window.location.href = "/orders";
+
+    mutation.mutate(payload);
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex min-w-screen min-h-screen justify-center items-center text-2xl font-bold">
+        <Spinner
+          classNames={{ label: "text-foreground mt-4" }}
+          label="Loading"
+          variant="wave"
+          size="lg"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.create}>
+      {/* Menus section start */}
       <div className={styles.menu}>
         <h1>Explore Our Best Menu</h1>
+        {/* Filter start */}
         <div className={styles.filter}>
           {filters.map((filter) => (
             <Button
               type="button"
-              color={
-                (!searchParams.get("category") && filter === "All") ||
-                filter === searchParams.get("category")
-                  ? "primary"
-                  : "secondary"
-              }
-              onClick={() =>
-                setSearchParams(filter === "All" ? {} : { category: filter })
-              }
+              color={category === filter ? "primary" : "default"}
+              variant={category === filter ? "solid" : "bordered"}
+              onPress={() => setCategory(filter)}
               key={filter}
             >
               {filter}
             </Button>
           ))}
         </div>
+        {/* Filter End */}
+
+        {/* Menu Start */}
         <div className={styles.list}>
-          {menu.map((item: MenuItem) => (
+          {Menus.map((item: MenuItem) => (
             <div className={styles.item} key={item.id}>
               <img
                 src={item.image_url}
@@ -109,7 +156,11 @@ const CreateOrder = () => {
             </div>
           ))}
         </div>
+        {/* Menu End */}
       </div>
+      {/* Menus section End */}
+
+      {/* Cart section start */}
       <form className={styles.form} onSubmit={handleOrder}>
         <div>
           <div className={styles.header}>
@@ -175,8 +226,25 @@ const CreateOrder = () => {
           )}
         </div>
       </form>
+      {/* Cart section end */}
     </div>
   );
 };
 
 export default CreateOrder;
+
+// const handleOrder = async (e: FormEvent) => {
+//   e.preventDefault();
+//   const form = e.target as HTMLFormElement;
+//   const payload = {
+//     customerName: form.customerName.value,
+//     tableNumber: form.tableNumber.value,
+//     cart: carts.map((item: CartItem) => ({
+//       menuItemId: item.id,
+//       quantity: item.quantity,
+//       notes: "",
+//     })),
+//   };
+//   await createOrder(payload);
+//   window.location.href = "/orders";
+// };

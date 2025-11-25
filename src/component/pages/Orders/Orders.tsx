@@ -125,12 +125,22 @@ const Orders = () => {
       <section>
         <Table aria-label="Order Table" className="min-w-full ">
           <TableHeader>
-            <TableColumn className="text-center">No</TableColumn>
-            <TableColumn className="text-center">Customer Name</TableColumn>
-            <TableColumn className="text-center">Table</TableColumn>
-            <TableColumn className="text-center">Total</TableColumn>
-            <TableColumn className="text-center">Status</TableColumn>
-            <TableColumn className="text-center">Actionn</TableColumn>
+            <TableColumn className="text-center font-semibold">No</TableColumn>
+            <TableColumn className="text-center font-semibold">
+              Customer Name
+            </TableColumn>
+            <TableColumn className="text-center font-semibold">
+              Table
+            </TableColumn>
+            <TableColumn className="text-center font-semibold">
+              Total
+            </TableColumn>
+            <TableColumn className="text-center font-semibold">
+              Status
+            </TableColumn>
+            <TableColumn className="text-center font-semibold">
+              Actionn
+            </TableColumn>
           </TableHeader>
           <TableBody>
             {orders.map((order: OrderType, index: number) => (

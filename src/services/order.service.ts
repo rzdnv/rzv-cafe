@@ -2,7 +2,7 @@ import { api } from "../api/axios";
 
 export const getOrders = async () => {
   const { data } = await api.get("/orders", {
-    params: { page: 1, pageSize: 5 },
+    params: { page: 1, pageSize: 15 },
   });
 
   return data; // PENTING → sama seperti fetchAPI yang return data saja
