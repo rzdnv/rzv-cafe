@@ -1,20 +1,19 @@
 import { useState, type FormEvent } from "react";
-import styles from "./CreateOrder.module.css";
 import { getMenu, getMenuDetail } from "../../../services/menu.service";
 import { createOrder } from "../../../services/order.service";
 import { Link } from "react-router-dom";
-import Input from "../../ui/Input";
-import Select from "../../ui/Select";
 import type { CartItem, MenuItem } from "../../../types/order";
 import { filters, tables } from "./CreateOrder.constants";
 
 // ----------------
+import { useCartStore } from "../../../store/cart.store";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@heroui/react";
+import { Button, Input } from "@heroui/react";
 import { addToast } from "@heroui/react";
 import { Spinner } from "@heroui/react";
+import { Select, SelectItem } from "@heroui/react";
 import { Card, CardBody, CardFooter, Image } from "@heroui/react";
 import {
   Modal,
@@ -52,8 +51,6 @@ const CreateOrder = () => {
     },
   });
 
-  const [carts, setCarts] = useState<CartItem[]>([]);
-
   // Mengambil data menu
   const [category, setCategory] = useState("All");
 
@@ -67,17 +64,7 @@ const CreateOrder = () => {
   const Menus = data ?? [];
   // --------------------
 
-  // Menu Detail
-  // const { data: Mdetail = {}, isLoading: isDetailLoading } = useQuery({
-  //   queryKey: ["menuItem", selectedMenuId],
-  //   queryFn: async () => {
-  //     if (!selectedMenuId) return null;
-  //     const result = await getMenuDetail(selectedMenuId);
-  //     return result.data;
-  //   },
-  //   enabled: !!selectedMenuId, // query jalan hanya kalau ada ID
-  // });
-
+  // Detail Menu
   const { data: Mdetail, isLoading: isDetailLoading } = useQuery({
     queryKey: ["menuDetail", selectedMenuId],
     queryFn: async () => {
@@ -87,39 +74,8 @@ const CreateOrder = () => {
     enabled: !!selectedMenuId,
   });
 
-  // const { data: Mdetail = {} } = useQuery({
-  //   queryKey: ["category", category],
-  //   queryFn: async () => {
-  //     const result = await getMenuDetail();
-  //     return result.data;
-  //   },
-  // });
-
   // Add to cart
-  const handleAddToCart = (type: string, id: string, name: string) => {
-    const itemIsInCart = carts.find((item: CartItem) => item.id === id);
-    if (type === "increment") {
-      if (itemIsInCart) {
-        setCarts(
-          carts.map((item: CartItem) =>
-            item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-          )
-        );
-      } else {
-        setCarts([...carts, { id, name, quantity: 1 }]);
-      }
-    } else {
-      if (itemIsInCart && itemIsInCart.quantity <= 1) {
-        setCarts(carts.filter((item: CartItem) => item.id !== id));
-      } else {
-        setCarts(
-          carts.map((item: CartItem) =>
-            item.id === id ? { ...item, quantity: item.quantity - 1 } : item
-          )
-        );
-      }
-    }
-  };
+  const { carts, add, remove } = useCartStore();
   // ------------------
 
   // Send Order
@@ -141,21 +97,6 @@ const CreateOrder = () => {
   };
   // -----------
 
-  // Loading state
-  // if (isLoading) {
-  //   return (
-  //     <div className="flex min-w-screen min-h-screen justify-center items-center text-2xl font-bold">
-  //       <Spinner
-  //         classNames={{ label: "text-foreground mt-4" }}
-  //         label="Loading"
-  //         variant="wave"
-  //         size="lg"
-  //       />
-  //     </div>
-  //   );
-  // }
-  // ------------
-
   const handleOpenDetail = () => {
     onOpen();
   };
@@ -166,12 +107,14 @@ const CreateOrder = () => {
   };
 
   return (
-    <div className={styles.create}>
+    <div className="flex flex-col gap-8 p-4 md:flex-row">
       {/* Menus section start */}
-      <div className={styles.menu}>
-        <h1>Explore Our Best Menu</h1>
+      <div className="md:w-[70%]">
+        <h1 className="text-2xl text-slate-900 font-bold">
+          Explore Our Best Menu
+        </h1>
         {/* Filter start */}
-        <div className={styles.filter}>
+        <div className="flex gap-4 my-4 ">
           {filters.map((filter) => (
             <Button
               type="button"
@@ -187,7 +130,7 @@ const CreateOrder = () => {
         {/* Filter End */}
 
         {/* Menu Start */}
-        <div className={styles.list}>
+        <div className="grid grid-cols-3 gap-4 mt-5">
           {/* Card */}
           {isLoading ? (
             <div className="flex mt-20 ml-40 text-2xl font-bold">
@@ -227,9 +170,7 @@ const CreateOrder = () => {
                   </div>
                   <Button
                     color="primary"
-                    onPress={() => {
-                      handleAddToCart("increment", item.id, item.name);
-                    }}
+                    onPress={() => add(item.id, item.name)}
                   >
                     Add to Cart
                   </Button>
@@ -275,7 +216,7 @@ const CreateOrder = () => {
                   color="primary"
                   isDisabled={!Mdetail}
                   onPress={() => {
-                    handleAddToCart("increment", Mdetail.id, Mdetail.name);
+                    add(Mdetail.id, Mdetail.name);
                     handleClose();
                   }}
                 >
@@ -292,67 +233,92 @@ const CreateOrder = () => {
       {/* Menus section End */}
 
       {/* Cart section start */}
-      <form className={styles.form} onSubmit={handleOrder}>
+      <form
+        className="md:w-[30%] flex flex-col h-fit sticky p-4 gap-6 rounded-3xl"
+        onSubmit={handleOrder}
+      >
         <div>
-          <div className={styles.header}>
-            <h2 className={styles.title}>Customer Information</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-slate-900">
+              Customer Information
+            </h2>
             <Link to="/orders">
-              <Button color="secondary">Cancel</Button>
+              <Button color="danger">Cancel</Button>
             </Link>
           </div>
-          <div className={styles.input}>
+          <div className="flex flex-col gap-4 p-4 rounded-2xl">
             <Input
-              id="name"
+              isRequired
               label="Name"
-              name="customerName"
-              placeholder="Insert Name"
-              required
+              labelPlacement="outside"
+              name="name"
+              placeholder="Enter Name"
+              type="text"
+              size="lg"
+              variant="bordered"
+              validate={(value) => {
+                if (value.length < 3) {
+                  return "Nama pengguna harus terdiri dari minimal 3 karakter.";
+                }
+              }}
             />
             <Select
-              name="tableNumber"
-              id="table"
-              label="Table Number"
-              options={tables}
-            />
+              isRequired
+              labelPlacement="outside"
+              className="max-w-full"
+              label="Table"
+              placeholder="Select Table"
+              variant="bordered"
+              size="lg"
+            >
+              {tables.map((table) => (
+                <SelectItem key={table.value}>{table.label}</SelectItem>
+              ))}
+            </Select>
           </div>
         </div>
         <div>
-          <div className={styles.header}>
-            <h2 className={styles.title}>Current Order</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-base font-semibold text-slate-900">
+              Current Order
+            </h2>
           </div>
           {carts.length > 0 ? (
-            <div className={styles.cart}>
+            <div className="flex flex-col gap-4 p-4 bg-gray-200 rounded-2xl">
               {carts.map((item: CartItem) => (
-                <div className={styles.cartItem} key={item.id}>
-                  <h4 className={styles.name}>{item.name}</h4>
-                  <div className={styles.quantity}>
+                <div
+                  className="flex flex-col justify-between gap-2 items-center"
+                  key={item.id}
+                >
+                  <h4 className="text-base font-semibold ">{item.name}</h4>
+                  <div className="flex w-full items-center justify-between font-bold">
                     <Button
                       type="button"
-                      onClick={() =>
-                        handleAddToCart("decrement", item.id, item.name)
-                      }
-                      color="secondary"
+                      onPress={() => remove(item.id)}
+                      color="danger"
+                      variant="faded"
                     >
                       -
                     </Button>
-                    <div className={styles.number}>{item.quantity}</div>
+                    <div className="w-6 text-center">{item.quantity}</div>
                     <Button
                       type="button"
-                      onClick={() =>
-                        handleAddToCart("increment", item.id, item.name)
-                      }
-                      color="secondary"
+                      onPress={() => add(item.id, item.name)}
+                      color="success"
+                      variant="faded"
                     >
                       +
                     </Button>
                   </div>
                 </div>
               ))}
-              <Button type="submit">Order</Button>
+              <Button type="submit" color="primary">
+                Order
+              </Button>
             </div>
           ) : (
-            <div className={styles.cart}>
-              <h4>Cart is empty</h4>
+            <div className="flex flex-col gap-4 p-4 bg-gray-200 rounded-2xl">
+              <h4 className="text-base font-semibold">Cart is empty</h4>
             </div>
           )}
         </div>
@@ -363,58 +329,3 @@ const CreateOrder = () => {
 };
 
 export default CreateOrder;
-
-// const handleOrder = async (e: FormEvent) => {
-//   e.preventDefault();
-//   const form = e.target as HTMLFormElement;
-//   const payload = {
-//     customerName: form.customerName.value,
-//     tableNumber: form.tableNumber.value,
-//     cart: carts.map((item: CartItem) => ({
-//       menuItemId: item.id,
-//       quantity: item.quantity,
-//       notes: "",
-//     })),
-//   };
-//   await createOrder(payload);
-//   window.location.href = "/orders";
-// };
-
-// {
-//   isLoading ? (
-//     <div className="flex min-w-screen min-h-screen justify-center items-center text-2xl font-bold">
-//       <Spinner
-//         classNames={{ label: "text-foreground mt-4" }}
-//         label="Loading"
-//         variant="wave"
-//         size="lg"
-//       />
-//     </div>
-//   ) : (
-//     <Card
-//       key={index}
-//       isPressable
-//       shadow="sm"
-//       onPress={() => {
-//         setSelectedMenuId(item.id);
-//         console.log(item.id);
-//         handleOpenDetail();
-//       }}
-//     >
-//       <CardBody className="overflow-visible p-0">
-//         <Image
-//           alt={item.name}
-//           className="w-full object-cover h-[140px]"
-//           radius="lg"
-//           shadow="sm"
-//           src={item.image_url}
-//           width="100%"
-//         />
-//       </CardBody>
-//       <CardFooter className="text-small justify-between ">
-//         <b>{item.name}</b>
-//         <p className="text-default-500"> $ {item.price}</p>
-//       </CardFooter>
-//     </Card>
-//   );
-// }
