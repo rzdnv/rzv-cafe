@@ -1,10 +1,10 @@
 import {
   deleteOrder,
   getOrders,
+  getOrderById,
   updateOrder,
 } from "../../../services/order.service";
-// import Button from "../../ui/Buttton";
-
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -20,8 +20,28 @@ import {
   TableCell,
   Chip,
 } from "@heroui/react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Image,
+} from "@heroui/react";
 
 // -----------------------
+
+interface MenuItem {
+  name: string;
+  image_url: string;
+}
+
+interface CartItem {
+  menuItemId: string;
+  quantity: number;
+  menuItem: MenuItem;
+}
 
 interface OrderType {
   id: string;
@@ -36,6 +56,8 @@ type ChipColor = "success" | "warning" | "danger" | "default";
 const Orders = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedOrderId, setSelectedOrderId] = useState<string>();
 
   function getChipColor(status: string): ChipColor {
     switch (status) {
@@ -60,6 +82,28 @@ const Orders = () => {
       return result.data; // karena getOrders return.data
     },
   });
+
+  // ----------------------------------------------------------------
+  // GET : DETAIL ORDER
+  // ----------------------------------------------------------------
+
+  const { data: order, isLoading: isDetailLoading } = useQuery({
+    queryKey: ["menuDetail", selectedOrderId],
+    queryFn: async () => {
+      const result = await getOrderById(selectedOrderId as string);
+      return result;
+    },
+    enabled: !!selectedOrderId,
+  });
+
+  const handleOpenDetail = () => {
+    onOpen();
+  };
+
+  const handleClose = () => {
+    setSelectedOrderId(undefined);
+    onClose();
+  };
 
   // ----------------------------------------------------------------
   // MUTATION: UPDATE ORDER
@@ -165,13 +209,18 @@ const Orders = () => {
                   </div>
                 </TableCell>
                 <TableCell className="flex justify-center gap-2.5">
-                  <Link to={`/orders/${order.id}`}>
-                    <Button>Detail</Button>
-                  </Link>
+                  <Button
+                    onPress={() => {
+                      setSelectedOrderId(order.id);
+                      handleOpenDetail();
+                    }}
+                  >
+                    Detail
+                  </Button>
 
                   {order.status === "PROCESSING" && (
                     <Button
-                      onClick={() => handleCompleteOrder(order.id)}
+                      onPress={() => handleCompleteOrder(order.id)}
                       color="success"
                       className="text-white"
                     >
@@ -181,7 +230,7 @@ const Orders = () => {
 
                   {order.status === "COMPLETED" && (
                     <Button
-                      onClick={() => handleDeleteOrder(order.id)}
+                      onPress={() => handleDeleteOrder(order.id)}
                       color="danger"
                     >
                       Delete
@@ -192,136 +241,91 @@ const Orders = () => {
             ))}
           </TableBody>
         </Table>
+        {/* Detail Order */}
+        <Modal isOpen={isOpen} size="lg" onClose={handleClose}>
+          <ModalContent>
+            <>
+              <ModalHeader>
+                {isDetailLoading ? "Loading..." : `Order #${order?.id}`}
+              </ModalHeader>
+
+              <ModalBody>
+                {isDetailLoading ? (
+                  <Spinner />
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-row">
+                      <div className="flex-1 ">
+                        <div className="flex flex-col gap-1">
+                          <h2>Customer :</h2>
+                          <Chip color="default" variant="bordered">
+                            {order?.customer_name}
+                          </Chip>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <h2>Table :</h2>
+                          <Chip color="default" variant="bordered">
+                            {order?.table_number}
+                          </Chip>
+                        </div>
+                      </div>
+                      <div className="flex-1 ">
+                        <div className="flex flex-col gap-1">
+                          <h2>Status :</h2>
+                          <Chip color="default" variant="bordered">
+                            {order?.status}
+                          </Chip>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <h2>Total :</h2>
+                          <Chip color="default" variant="bordered">
+                            ${order?.total}
+                          </Chip>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold mb-2">
+                        Order Items
+                      </h3>
+
+                      <div className="flex flex-col gap-3">
+                        {order?.cart?.map((item: CartItem) => (
+                          <div
+                            key={item.menuItemId}
+                            className="flex gap-3 p-3 rounded-md shadow-sm bg-gray-200"
+                          >
+                            <Image
+                              src={item.menuItem.image_url}
+                              alt={item.menuItem.name}
+                              className="w-16 h-16 rounded-md object-cover"
+                            />
+
+                            <div>
+                              <p className="font-semibold">
+                                {item.menuItem.name}
+                              </p>
+                              <p>Qty: {item.quantity}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={handleClose}>
+                  Close
+                </Button>
+              </ModalFooter>
+            </>
+          </ModalContent>
+        </Modal>
+        {/* Detail Order */}
       </section>
     </main>
   );
 };
 
 export default Orders;
-
-// import { useEffect, useState } from "react";
-// import styles from "./Orders.module.css";
-// import {
-//   deleteOrder,
-//   getOrders,
-//   updateOrder,
-// } from "../../../services/order.service";
-// import Button from "../../ui/Buttton";
-
-// // ---------------------
-// import { Link, useNavigate } from "react-router-dom";
-// // import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-// // ---------------------
-
-// interface OrderType {
-//   id: string;
-//   customer_name: string;
-//   table_number: number;
-//   total: number;
-//   status: "PROCESSING" | "COMPLETED";
-// }
-
-// const Orders = () => {
-//   const navigate = useNavigate();
-//   // const queryClient = useQueryClient();
-
-//   const [orders, setOrders] = useState<OrderType[]>([]);
-//   const [refetchOrder, setRefetchOrder] = useState(true);
-
-//   useEffect(() => {
-//     if (refetchOrder) {
-//       const fetchMenu = async () => {
-//         const result = await getOrders();
-//         setOrders(result.data); // aman → karena getOrders return data
-//         setRefetchOrder(false);
-//       };
-//       fetchMenu();
-//     }
-//   }, [refetchOrder]);
-
-//   const handleCompleteOrder = async (id: string) => {
-//     await updateOrder(id, { status: "COMPLETED" }).then(() => {
-//       setRefetchOrder(true);
-//     });
-//   };
-
-//   const handleDeleteOrder = async (id: string) => {
-//     await deleteOrder(id).then(() => {
-//       setRefetchOrder(true);
-//     });
-//   };
-
-//   const handleLogout = () => {
-//     localStorage.removeItem("auth");
-//     navigate("/login");
-//   };
-
-//   return (
-//     <main className={styles.order}>
-//       <section className={styles.header}>
-//         <h1 className={styles.title}>Order List</h1>
-//         <div className={styles.button}>
-//           <Link to="/create">
-//             <Button>Create Order</Button>
-//           </Link>
-//           <Button color="secondary" onClick={handleLogout}>
-//             Logout
-//           </Button>
-//         </div>
-//       </section>
-//       <section>
-//         <table
-//           border={1}
-//           className={styles.table}
-//           cellSpacing={0}
-//           cellPadding={10}
-//         >
-//           <thead>
-//             <tr>
-//               <th>No</th>
-//               <th>Customer Name</th>
-//               <th>Table</th>
-//               <th>Total</th>
-//               <th>Status</th>
-//               <th>Action</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {orders.map((order, index) => (
-//               <tr key={order.id}>
-//                 <td>{index + 1}</td>
-//                 <td>{order.customer_name}</td>
-//                 <td>{order.table_number}</td>
-//                 <td>${order.total}</td>
-//                 <td>{order.status}</td>
-//                 <td className={styles.action}>
-//                   <Link to={`/orders/${order.id}`}>
-//                     <Button>Detail</Button>
-//                   </Link>
-//                   {order.status === "PROCESSING" && (
-//                     <Button
-//                       onClick={() => handleCompleteOrder(order.id)}
-//                       color="success"
-//                     >
-//                       Completed
-//                     </Button>
-//                   )}
-//                   {order.status === "COMPLETED" && (
-//                     <Button
-//                       onClick={() => handleDeleteOrder(order.id)}
-//                       color="danger"
-//                     >
-//                       Delete
-//                     </Button>
-//                   )}
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       </section>
-//     </main>
-//   );
-// };
-
-// export default Orders;

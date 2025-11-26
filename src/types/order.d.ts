@@ -14,4 +14,13 @@ interface CartItem {
   quantity: number;
 }
 
-export type { MenuItem, CartItem };
+interface Order {
+  id: string;
+  customer_name: string;
+  table_number: number;
+  status: string;
+  total: number;
+  cart: CartItem[];
+}
+
+export type { MenuItem, CartItem, Order };

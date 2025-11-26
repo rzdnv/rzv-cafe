@@ -3,7 +3,6 @@ import Login from "../component/pages/Login";
 import CreateOrder from "../component/pages/CreateOrder/CreateOrder";
 import Home from "../component/pages/Home";
 import Orders from "../component/pages/Orders";
-import DetailOrder from "../component/pages/DetailOrder";
 import ProtectedRoute from "./ProtectedRoute";
 
 const routes: RouteObject[] = [
@@ -24,14 +23,6 @@ const routes: RouteObject[] = [
     element: (
       <ProtectedRoute>
         <Orders />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/orders/:id",
-    element: (
-      <ProtectedRoute>
-        <DetailOrder />
       </ProtectedRoute>
     ),
   },

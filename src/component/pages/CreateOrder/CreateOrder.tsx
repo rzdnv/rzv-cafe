@@ -30,6 +30,9 @@ const CreateOrder = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedMenuId, setSelectedMenuId] = useState<string>();
 
+  // ----------------------------------------------------------------
+  // MUTATION: CREATE ORDER
+  // ----------------------------------------------------------------
   const mutation = useMutation({
     mutationFn: createOrder,
     onSuccess: () => {
@@ -51,20 +54,22 @@ const CreateOrder = () => {
     },
   });
 
-  // Mengambil data menu
+  // ----------------------------------------------------------------
+  // GET : MENU
+  // ----------------------------------------------------------------
   const [category, setCategory] = useState("All");
 
-  const { data, isLoading } = useQuery({
+  const { data: Menus, isLoading } = useQuery({
     queryKey: ["category", category],
     queryFn: async () => {
       const result = await getMenu(category === "All" ? undefined : category);
       return result.data;
     },
   });
-  const Menus = data ?? [];
-  // --------------------
 
-  // Detail Menu
+  // ----------------------------------------------------------------
+  // GET : DETAIL MENU
+  // ----------------------------------------------------------------
   const { data: Mdetail, isLoading: isDetailLoading } = useQuery({
     queryKey: ["menuDetail", selectedMenuId],
     queryFn: async () => {
@@ -74,11 +79,24 @@ const CreateOrder = () => {
     enabled: !!selectedMenuId,
   });
 
-  // Add to cart
+  const handleOpenDetail = () => {
+    onOpen();
+  };
+
+  const handleClose = () => {
+    setSelectedMenuId(undefined);
+    onClose();
+  };
+
+  // ----------------------------------------------------------------
+  // ADD  TO CART
+  // ----------------------------------------------------------------
   const { carts, add, remove } = useCartStore();
   // ------------------
 
-  // Send Order
+  // ----------------------------------------------------------------
+  // SEND ORDER
+  // ----------------------------------------------------------------
   const handleOrder = (e: FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -94,16 +112,6 @@ const CreateOrder = () => {
     };
 
     mutation.mutate(payload);
-  };
-  // -----------
-
-  const handleOpenDetail = () => {
-    onOpen();
-  };
-
-  const handleClose = () => {
-    setSelectedMenuId(undefined);
-    onClose();
   };
 
   return (
@@ -226,7 +234,6 @@ const CreateOrder = () => {
             </>
           </ModalContent>
         </Modal>
-
         {/* detail menu end */}
         {/* Menu End */}
       </div>
