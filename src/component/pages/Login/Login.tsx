@@ -1,15 +1,10 @@
-// import type { FormEvent } from "react";
-// import { useState } from "react";
-// import { setLocalStorage } from "../../../utils/storage";
-import Button from "../../ui/Buttton";
-import Input from "../../ui/Input";
-import styles from "./Login.module.css";
 import { login } from "../../../services/auth.service";
 
 // ------------
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { Form, Input, Button } from "@heroui/react";
 // ------------
 
 interface LoginForm {
@@ -20,16 +15,12 @@ interface LoginForm {
 const Login = () => {
   const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginForm>();
+  const { register, handleSubmit } = useForm<LoginForm>();
 
   const onSubmit: SubmitHandler<LoginForm> = async (data) => {
     try {
       const result = await login(data);
-      console.log("HASIL LOGIN:", result);
+      // console.log("HASIL LOGIN:", result);
       localStorage.setItem("auth", result.token);
 
       navigate("/orders");
@@ -38,75 +29,49 @@ const Login = () => {
     }
   };
 
-  // ------------------------
-  // const handleLogin = async (event: FormEvent) => {
-  //   event.preventDefault();
-  //   const form = event.target as HTMLFormElement;
-  //   const payload = {
-  //     email: form.email.value,
-  //     password: form.password.value,
-  //   };
-  //   const result = await login(payload);
-  //   console.log("HASIL LOGIN:", result);
-  //   setLocalStorage("auth", result.token);
-  //   window.location.href = "/orders";
-  // };
-  // ------------------------
-
   return (
-    <main className={styles.login}>
-      <div className={styles.card}>
-        <h1 className={styles.title}>Login</h1>
-        <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+    <main className="flex justify-center items-center h-screen p-5">
+      <div className="shadow-lg p-10 w-[35%]  rounded-2xl outline-1 outline-gray-200">
+        <h1 className="text-center text-4xl font-semibold mb-4">Login</h1>
+        <Form
+          className="w-full flex flex-col gap-6"
+          onReset={() => {}}
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <Input
+            size="lg"
+            isRequired
+            errorMessage="Please enter a valid email"
             label="Email"
-            id="email"
+            labelPlacement="outside"
+            placeholder="Enter your email"
             type="email"
-            placeholder="Insert Email"
-            {...register("email", { required: "Email wajib diisi" })}
+            {...register("email")}
           />
-          {errors.email && (
-            <p className={styles.message}>{errors.email.message}</p>
-          )}
 
           <Input
+            size="lg"
+            isRequired
+            errorMessage="Please enter a valid Password"
             label="Password"
-            id="password"
-            type="password"
+            labelPlacement="outside"
             placeholder="Insert Password"
-            {...register("password", { required: "Password wajib diisi" })}
+            type="password"
+            {...register("password")}
           />
-          {errors.password && (
-            <p className={styles.message}>{errors.password.message}</p>
-          )}
 
-          <Button type="submit">Login</Button>
-        </form>
+          <div className="flex gap-2 w-full ">
+            <Button size="md" color="primary" type="submit">
+              Submit
+            </Button>
+            <Button size="md" type="reset" variant="flat">
+              Reset
+            </Button>
+          </div>
+        </Form>
       </div>
     </main>
   );
 };
 
 export default Login;
-
-{
-  /* <form className={styles.form} onSubmit={handleLogin}>
-          <Input
-            label="Email"
-            name="email"
-            id="email"
-            type="email"
-            placeholder="Insert Email"
-            required
-          />
-          <Input
-            label="Password"
-            name="password"
-            id="password"
-            type="password"
-            placeholder="Insert Password"
-            required
-          />
-          <Button type="submit">Login</Button>
-        </form> */
-}
