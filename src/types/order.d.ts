@@ -8,6 +8,14 @@ interface MenuItem {
   price: number;
 }
 
+interface ReviewItem {
+  id: string;
+  menu_item_id: string;
+  reviewer_name: string;
+  rating: number;
+  comment: string;
+}
+
 interface CartItem {
   id: string;
   name: string;
@@ -23,4 +31,4 @@ interface Order {
   cart: CartItem[];
 }
 
-export type { MenuItem, CartItem, Order };
+export type { MenuItem, ReviewItem, CartItem, Order };

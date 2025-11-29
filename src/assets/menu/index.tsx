@@ -1,0 +1,10 @@
+export { default as almonddanish } from "./almonddanish.jpg";
+export { default as americano } from "./americano.png";
+export { default as applepie } from "./applepie.jpg";
+export { default as chickenpesto } from "./chickenpesto.png";
+export { default as bluberrycake } from "./bluberrycake.jpg";
+export { default as blueberrymuffin } from "./blueberrymuffin.jpg";
+export { default as cafélatte } from "./cafélatte.png";
+export { default as chaitealatte } from "./chaitealatte.png";
+export { default as cheesecake } from "./cheesecake.jpg";
+export { default as cappuccino } from "./cappuccino.png";

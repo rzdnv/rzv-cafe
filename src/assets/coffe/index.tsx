@@ -1,0 +1,10 @@
+export { default as Bean1 } from "./Bean1.jpg";
+export { default as Bean2 } from "./Bean2.jpg";
+export { default as Coffe0 } from "./Coffe0.jpg";
+export { default as Coffe1 } from "./Coffe1.jpg";
+export { default as Coffe2 } from "./Coffe2.jpg";
+export { default as Coffe3 } from "./Coffe3.jpg";
+export { default as Coffe4 } from "./Coffe4.jpg";
+export { default as Coffe5 } from "./Coffe5.jpg";
+export { default as Coffe6 } from "./Coffe6.jpg";
+export { default as Coffe7 } from "./Coffe7.jpg";

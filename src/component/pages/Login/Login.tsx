@@ -30,8 +30,8 @@ const Login = () => {
   };
 
   return (
-    <main className="flex justify-center items-center h-screen p-5">
-      <div className="shadow-lg p-10 w-[35%]  rounded-2xl outline-1 outline-gray-200">
+    <main className="flex justify-center items-center h-screen p-5 bg-gray-100">
+      <div className="shadow-lg p-10 w-[35%]  rounded-2xl outline-1 bg-white outline-gray-200">
         <h1 className="text-center text-4xl font-semibold mb-4">Login</h1>
         <Form
           className="w-full flex flex-col gap-6"
@@ -46,6 +46,7 @@ const Login = () => {
             labelPlacement="outside"
             placeholder="Enter your email"
             type="email"
+            variant="bordered"
             {...register("email")}
           />
 
@@ -57,12 +58,13 @@ const Login = () => {
             labelPlacement="outside"
             placeholder="Insert Password"
             type="password"
+            variant="bordered"
             {...register("password")}
           />
 
           <div className="flex gap-2 w-full ">
             <Button size="md" color="primary" type="submit">
-              Submit
+              Login
             </Button>
             <Button size="md" type="reset" variant="flat">
               Reset
