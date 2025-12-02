@@ -1,4 +1,4 @@
-import { login } from "../../../services/auth.service";
+import { login } from "../../services/auth.service";
 
 // ------------
 import { useForm } from "react-hook-form";

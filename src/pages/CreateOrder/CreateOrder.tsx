@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from "react";
-import { getMenu, getMenuDetail } from "../../../services/menu.service";
-import { createOrder } from "../../../services/order.service";
+import { getMenu, getMenuDetail } from "../../services/menu.service";
+import { createOrder } from "../../services/order.service";
 import { Link } from "react-router-dom";
-import type { CartItem, MenuItem } from "../../../types/order";
+import type { CartItem, MenuItem } from "../../types/order";
 import { filters, tables } from "./CreateOrder.constants";
 
 // ----------------
-import { useCartStore } from "../../../store/cart.store";
+import { useCartStore } from "../../store/cart.store";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
