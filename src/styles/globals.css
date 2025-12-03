@@ -17,6 +17,18 @@
   --color-almond-800: #784634;
   --color-almond-900: #623b2c;
   --color-almond-950: #341d16;
+
+  --color-aqua-deep-50: #ebfef7;
+  --color-aqua-deep-100: #cefde9;
+  --color-aqua-deep-200: #a1f9d9;
+  --color-aqua-deep-300: #64f1c6;
+  --color-aqua-deep-400: #27e0af;
+  --color-aqua-deep-500: #02c799;
+  --color-aqua-deep-600: #00a27d;
+  --color-aqua-deep-700: #008267;
+  --color-aqua-deep-800: #006653;
+  --color-aqua-deep-900: #004d40;
+  --color-aqua-deep-950: #003029;
 }
 
 @theme inline {

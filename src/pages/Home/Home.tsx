@@ -2,12 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 // Component
-import Hero from "../../component/Hero";
-import History from "../../component/History";
-import Gallery from "../../component/Gallery";
-import Menu from "../../component/Menu";
-import Review from "../../component/Review";
-import Footer from "../../component/Footer";
+import Hero from "../../components/layouts/Hero";
+import History from "../../components/layouts/History";
+import Gallery from "../../components/layouts/Gallery";
+import Menu from "../../components/layouts/Menu";
+import Review from "../../components/layouts/Review";
+import Footer from "../../components/layouts/Footer";
 // ------------------
 
 // Gambar
@@ -37,7 +37,7 @@ const Home = () => {
   ];
 
   return (
-    <main className="">
+    <main className="font-mono">
       {/* Navbar Start */}
       <Navbar
         isMenuOpen={isMenuOpen}

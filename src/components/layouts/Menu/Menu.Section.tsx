@@ -1,6 +1,6 @@
-import { useMenu } from "../../hooks/useMenu";
+import { useMenu } from "../../../hooks/useMenu";
 import MenuCard from "./MenuCard";
-import type { MenuItem } from "../../types/order";
+import type { MenuItem } from "../../../types/menu";
 
 import {
   almonddanish,
@@ -13,7 +13,7 @@ import {
   cheesecake,
   cappuccino,
   chickenpesto,
-} from "../../assets/menu";
+} from "../../../assets/menu";
 
 export default function MenuSection() {
   const { data: menus } = useMenu();
@@ -35,7 +35,7 @@ export default function MenuSection() {
     <section id="menu" className="p-12">
       <h2 className="text-4xl font-mono font-bold mb-4">Our Specials</h2>
 
-      <div className="flex gap-4 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-4 overflow-x-auto p-4 scrollbar-hide">
         {menus?.map((item: MenuItem) => {
           const key = item.name.toLowerCase().replace(/\s+/g, "");
           const imgSrc = menuImages[key];

@@ -1,4 +1,5 @@
-import type { MenuItem } from "../../types/order";
+import type { MenuItem } from "../../../types/menu";
+import { Button } from "../../ui/button";
 
 export default function MenuCard({
   item,
@@ -8,7 +9,10 @@ export default function MenuCard({
   img: string;
 }) {
   return (
-    <div className="w-56 shrink-0 rounded-lg shadow-lg overflow-hidden bg-white">
+    <div
+      className="w-56 shrink-0 rounded-lg shadow-lg overflow-hidden bg-white 
+    hover:outline-2 hover:outline-aqua-deep-800 md:hover:-translate-2 md:duration-300 ease-in-out"
+    >
       <div className="aspect-square overflow-hidden">
         <img src={img} className="object-cover w-full h-full" />
       </div>
@@ -17,7 +21,12 @@ export default function MenuCard({
         <h2 className="text-lg">${item.price}</h2>
       </div>
       <div className="px-4 pb-4">
-        <button className="w-full p-4 bg-almond-400">add to cart</button>
+        <Button
+          size={"lg"}
+          className="w-full p-4 bg-aqua-deep-900 hover:bg-aqua-deep-600"
+        >
+          add to cart
+        </Button>
       </div>
     </div>
   );

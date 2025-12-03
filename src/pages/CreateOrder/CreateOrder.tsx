@@ -1,15 +1,14 @@
 import { useState, type FormEvent } from "react";
-import { getMenu, getMenuDetail } from "../../services/menu.service";
 import { createOrder } from "../../services/order.service";
 import { Link } from "react-router-dom";
-import type { CartItem, MenuItem } from "../../types/order";
+import type { CartItem } from "../../types/cart";
+import type { MenuItem } from "../../types/menu";
 import { filters, tables } from "./CreateOrder.constants";
 
 // ----------------
 import { useCartStore } from "../../store/cart.store";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import { useQuery } from "@tanstack/react-query";
 import { Button, Input } from "@heroui/react";
 import { addToast } from "@heroui/react";
 import { Spinner } from "@heroui/react";
@@ -24,6 +23,9 @@ import {
   useDisclosure,
 } from "@heroui/react";
 // ----------------
+
+import { useMenu } from "../../hooks/useMenu";
+import { useDetailMenu } from "../../hooks/useDetailMenu";
 
 const CreateOrder = () => {
   const navigate = useNavigate();
@@ -59,25 +61,15 @@ const CreateOrder = () => {
   // ----------------------------------------------------------------
   const [category, setCategory] = useState("All");
 
-  const { data: Menus, isLoading } = useQuery({
-    queryKey: ["category", category],
-    queryFn: async () => {
-      const result = await getMenu(category === "All" ? undefined : category);
-      return result.data;
-    },
-  });
+  const { data: Menus, isLoading } = useMenu(category);
+
+  const skeletonCount = Menus?.length || 12;
 
   // ----------------------------------------------------------------
   // GET : DETAIL MENU
   // ----------------------------------------------------------------
-  const { data: Mdetail, isLoading: isDetailLoading } = useQuery({
-    queryKey: ["menuDetail", selectedMenuId],
-    queryFn: async () => {
-      const result = await getMenuDetail(selectedMenuId);
-      return result.menu;
-    },
-    enabled: !!selectedMenuId,
-  });
+  const { data: Mdetail, isLoading: isDetailLoading } =
+    useDetailMenu(selectedMenuId);
 
   const handleOpenDetail = () => {
     onOpen();
@@ -92,7 +84,6 @@ const CreateOrder = () => {
   // ADD  TO CART
   // ----------------------------------------------------------------
   const { carts, add, remove } = useCartStore();
-  // ------------------
 
   // ----------------------------------------------------------------
   // SEND ORDER
@@ -140,52 +131,62 @@ const CreateOrder = () => {
         {/* Menu Start */}
         <div className="grid grid-cols-3 gap-4 mt-5">
           {/* Card */}
-          {isLoading ? (
-            <div className="flex mt-20 ml-40 text-2xl font-bold">
-              <Spinner
-                classNames={{ label: "text-foreground mt-4" }}
-                label="Loading"
-                variant="wave"
-                size="lg"
-              />
-            </div>
-          ) : (
-            Menus.map((item: MenuItem, index: number) => (
-              <Card key={index} shadow="sm">
-                <CardBody
-                  className="overflow-visible p-0 "
-                  onClick={() => {
-                    setSelectedMenuId(item.id);
-                    handleOpenDetail();
-                  }}
+          {isLoading
+            ? Array.from({ length: skeletonCount }).map((_, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl shadow-sm overflow-hidden bg-white"
                 >
-                  <Image
-                    alt={item.name}
-                    src={item.image_url}
-                    className="w-full object-cover aspect-4/3"
-                    radius="lg"
-                    shadow="sm"
-                  />
-                </CardBody>
-                <CardFooter className="text-small justify-between">
-                  <div className="flex flex-col gap-1">
-                    <h1 className="text-medium font-semibold text-slate-900">
-                      {item.name}
-                    </h1>
-                    <h1 className="text-medium font-medium text-slate-900">
-                      Price : ${item.price}
-                    </h1>
+                  {/* Skeleton Gambar */}
+                  <div className="w-full aspect-4/3 bg-gray-300 animate-pulse" />
+
+                  {/* Body */}
+                  <div className="p-4 flex justify-between items-end">
+                    <div className="flex flex-col gap-2 w-full">
+                      <div className="h-4 w-3/4 bg-gray-300 rounded animate-pulse" />
+                      <div className="h-4 w-1/2 bg-gray-300 rounded animate-pulse" />
+                    </div>
+
+                    {/* Tombol Skeleton */}
+                    <div className="h-8 w-24 bg-gray-300 rounded-lg animate-pulse" />
                   </div>
-                  <Button
-                    color="primary"
-                    onPress={() => add(item.id, item.name)}
+                </div>
+              ))
+            : Menus.map((item: MenuItem, index: number) => (
+                <Card key={index} shadow="sm">
+                  <CardBody
+                    className="overflow-visible p-0 "
+                    onClick={() => {
+                      setSelectedMenuId(item.id);
+                      handleOpenDetail();
+                    }}
                   >
-                    Add to Cart
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))
-          )}
+                    <Image
+                      alt={item.name}
+                      src={item.image_url}
+                      className="w-full object-cover aspect-4/3"
+                      radius="lg"
+                      shadow="sm"
+                    />
+                  </CardBody>
+                  <CardFooter className="text-small justify-between">
+                    <div className="flex flex-col gap-1">
+                      <h1 className="text-medium font-semibold text-slate-900">
+                        {item.name}
+                      </h1>
+                      <h1 className="text-medium font-medium text-slate-900">
+                        Price : ${item.price}
+                      </h1>
+                    </div>
+                    <Button
+                      color="primary"
+                      onPress={() => add(item.id, item.name)}
+                    >
+                      Add to Cart
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
         </div>
         {/* detail menu start */}
         <Modal isOpen={isOpen} onClose={handleClose}>

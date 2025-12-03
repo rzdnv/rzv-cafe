@@ -1,4 +1,4 @@
-import { BG1BW } from "../../assets/BG";
+import { BG1BW } from "../../../assets/BG";
 
 export default function History() {
   return (

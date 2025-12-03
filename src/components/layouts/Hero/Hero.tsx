@@ -1,10 +1,10 @@
-import { Button } from "@heroui/react";
+import { Button } from "../../ui/button";
 import { Star, ChevronRight } from "lucide-react";
-import { CoffeLogo } from "../../assets/logo";
+import { CoffeLogo } from "../../../assets/logo";
 
 export default function Hero() {
   return (
-    <section id="home" className=" p-12 ">
+    <section id="home" className=" p-12">
       <div className="flex flex-col gap-8 max-w-full  md:px-14 rounded-3xl ">
         <div className="flex flex-col gap-4 md:flex-row ">
           {/* Left */}
@@ -19,7 +19,10 @@ export default function Hero() {
               "Sit back, sip your coffee, and enjoy a cozy moment that feels
               just right."
             </p>
-            <Button size="md" color="primary" className="w-1/4">
+            <Button
+              size="lg"
+              className="w-1/4 bg-aqua-deep-900 hover:bg-aqua-deep-600"
+            >
               Order Now
             </Button>
           </div>
@@ -41,9 +44,12 @@ export default function Hero() {
             <h2 className="font-medium">
               add your rating and be part of the community!
             </h2>
-            <button className="rounded-full p-4 bg-slate-700">
+            <Button
+              size={"icon-xl"}
+              className="rounded-full p-4 bg-aqua-deep-900 hover:bg-aqua-deep-600"
+            >
               <ChevronRight color="white" />
-            </button>
+            </Button>
           </div>
         </div>
       </div>

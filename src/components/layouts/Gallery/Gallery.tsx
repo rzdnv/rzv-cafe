@@ -7,9 +7,9 @@ import {
   GalleryL1,
   GalleryL2,
   GalleryL3,
-} from "../../assets/gallery";
+} from "../../../assets/gallery";
 
-import { Coffe3, Coffe7 } from "../../assets/coffe";
+import { Coffe3, Coffe7 } from "../../../assets/coffe";
 
 export default function GallerySection() {
   return (

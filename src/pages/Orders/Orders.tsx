@@ -32,24 +32,11 @@ import {
 
 // -----------------------
 
-interface MenuItem {
-  name: string;
-  image_url: string;
-}
+import type { MenuItem } from "../../types/menu";
+import type { CartItem } from "../../types/cart";
+import type { OrderType } from "../../types/order";
 
-interface CartItem {
-  menuItemId: string;
-  quantity: number;
-  menuItem: MenuItem;
-}
-
-interface OrderType {
-  id: string;
-  customer_name: string;
-  table_number: number;
-  total: number;
-  status: "PROCESSING" | "COMPLETED";
-}
+type CartItemWithMenu = CartItem & MenuItem;
 
 type ChipColor = "success" | "warning" | "danger" | "default";
 
@@ -290,21 +277,19 @@ const Orders = () => {
                       </h3>
 
                       <div className="flex flex-col gap-3">
-                        {order?.cart?.map((item: CartItem) => (
+                        {order?.cart?.map((item: CartItemWithMenu) => (
                           <div
-                            key={item.menuItemId}
+                            key={item.id}
                             className="flex gap-3 p-3 rounded-md shadow-sm bg-gray-200"
                           >
                             <Image
-                              src={item.menuItem.image_url}
-                              alt={item.menuItem.name}
+                              src={item.image_url}
+                              alt={item.name}
                               className="w-16 h-16 rounded-md object-cover"
                             />
 
                             <div>
-                              <p className="font-semibold">
-                                {item.menuItem.name}
-                              </p>
+                              <p className="font-semibold">{item.name}</p>
                               <p>Qty: {item.quantity}</p>
                             </div>
                           </div>
