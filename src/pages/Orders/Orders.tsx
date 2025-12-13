@@ -60,13 +60,13 @@ const Orders = () => {
   }
 
   // ----------------------------------------------------------------
-  // FETCH ORDERS (REPLACE useEffect)
+  // FETCH ORDERS
   // ----------------------------------------------------------------
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
       const result = await getOrders();
-      return result.data; // karena getOrders return.data
+      return result.data;
     },
   });
 

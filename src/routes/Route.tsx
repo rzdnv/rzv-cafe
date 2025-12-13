@@ -1,7 +1,7 @@
 import type { RouteObject } from "react-router-dom";
-import Login from "../pages/Login";
-import CreateOrder from "../pages/CreateOrder/CreateOrder";
-import Home from "../pages/Home";
+import Login from "../feature/Login";
+import CreateOrder from "../feature/CreateOrder";
+import Home from "../feature/Home";
 import Orders from "../pages/Orders";
 import ProtectedRoute from "./ProtectedRoute";
 

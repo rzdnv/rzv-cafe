@@ -8,4 +8,14 @@ interface MenuItem {
   price: number;
 }
 
-export type { MenuItem };
+interface DetailItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image_url: string;
+  category: string;
+  is_available: boolean;
+}
+
+export type { MenuItem, DetailItem };
